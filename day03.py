@@ -7,12 +7,16 @@ def is_symbol(lines, i, j):
     return not is_digit(lines[i][j]) and lines[i][j] != '.'
 
 def get_number(lines, i, start):
+    if i < 0 or start < 0 or i >= len(lines) or start >= len(lines[i]):
+        return None
     end = start
     while end < len(lines[i]) and is_digit(lines[i][end]):
         end+=1
     if start == end:
         return None
     else:
+        while start > 0 and is_digit(lines[i][start-1]):
+            start -= 1
         return int(lines[i][start:end])
     
 def is_part_number(lines, i, start, end):
@@ -22,6 +26,24 @@ def is_part_number(lines, i, start, end):
         if is_symbol(lines, i-1, j) or is_symbol(lines, i+1,j):
             return True
     return False
+
+def get_adjacent_numbers(lines, i, j):
+    numbers = []
+    numbers.append(get_number(lines,i,j-1))
+    numbers.append(get_number(lines,i,j+1))
+    numbers.append(get_number(lines,i-1,j-1))
+    if not is_digit(lines[i-1][j-1]):
+        numbers.append(get_number(lines,i-1,j))
+    if not is_digit(lines[i-1][j]):
+        numbers.append(get_number(lines,i-1,j+1))
+    numbers.append(get_number(lines,i+1,j-1))
+    if not is_digit(lines[i+1][j-1]):
+        numbers.append(get_number(lines,i+1,j))
+    if not is_digit(lines[i+1][j]):
+        numbers.append(get_number(lines,i+1,j+1))
+    for i in range(numbers.count(None)):
+        numbers.remove(None)
+    return numbers
 
 def part_one(lines):
     sum = 0
@@ -41,6 +63,12 @@ def part_one(lines):
 
 def part_two(lines):
     sum = 0
+    for i in range(len(lines)):
+        for j in range(len(lines[i])):
+            if lines[i][j] == '*':
+                numbers = get_adjacent_numbers(lines, i, j)
+                if len(numbers) == 2:
+                    sum += numbers[0] * numbers[1]
     return sum
 
 input = open('input03.txt', 'r')
